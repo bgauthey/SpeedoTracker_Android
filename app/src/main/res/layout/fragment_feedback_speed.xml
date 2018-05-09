@@ -23,6 +23,8 @@
 
     <android.support.v7.widget.AppCompatTextView
         android:id="@+id/tv_ff_speed_value"
+        android:textStyle="bold"
+        android:textSize="22sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"

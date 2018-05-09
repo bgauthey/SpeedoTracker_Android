@@ -14,6 +14,12 @@ public abstract class LocationService {
 
     public interface OnLocationServiceSpeedChangedListener {
         void onLocationServiceSpeedChangedListener(float speed);
+
+        /**
+         * Invoked when speed activity changed. Speed is considered active when greater than 0 and inactive when equal to 0.
+         * @param active true if speed is active, false otherwise.
+         */
+        void onLocationServiceSpeedActivityChangedListener(boolean active);
     }
 
     private CopyOnWriteArrayList<OnLocationServiceStateChangedListener> mOnLocationServiceStateChangedListeners = new CopyOnWriteArrayList<>();
@@ -28,6 +34,8 @@ public abstract class LocationService {
     public abstract void startTracking();
 
     public abstract void stopTracking();
+
+    public abstract float getAverageSpeedHistory();
 
     public final void registerOnLocationServiceStateChangedListener(OnLocationServiceStateChangedListener locationServiceStateChangedListener) {
         if (mOnLocationServiceStateChangedListeners.contains(locationServiceStateChangedListener)) {
@@ -55,15 +63,21 @@ public abstract class LocationService {
         }
     }
 
-    protected void notifyOnStateChanged(boolean enabled) {
+    void notifyOnStateChanged(boolean enabled) {
         for (OnLocationServiceStateChangedListener onLocationServiceStateChangedListener : mOnLocationServiceStateChangedListeners) {
             onLocationServiceStateChangedListener.onLocationServiceStateChangedListener(enabled);
         }
     }
 
-    protected void notifyOnSpeedChanged(float speed) {
+    void notifyOnSpeedChanged(float speed) {
         for (OnLocationServiceSpeedChangedListener onLocationServiceSpeedChangedListener : mOnLocationServiceSpeedChangedListeners) {
             onLocationServiceSpeedChangedListener.onLocationServiceSpeedChangedListener(speed);
+        }
+    }
+
+    void notifyOnSpeedActivityChanged(boolean active) {
+        for (OnLocationServiceSpeedChangedListener onLocationServiceSpeedChangedListener : mOnLocationServiceSpeedChangedListeners) {
+            onLocationServiceSpeedChangedListener.onLocationServiceSpeedActivityChangedListener(active);
         }
     }
 }

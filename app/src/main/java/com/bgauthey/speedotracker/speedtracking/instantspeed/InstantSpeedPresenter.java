@@ -32,11 +32,12 @@ public class InstantSpeedPresenter implements InstantSpeedContract.Presenter {
     private final LocationService.OnLocationServiceSpeedChangedListener mSpeedChangedListener = new LocationService.OnLocationServiceSpeedChangedListener() {
         @Override
         public void onLocationServiceSpeedChangedListener(float speed) {
-            mView.showSpeed(convertM_S_to_KM_H(speed));
+            mView.showSpeed((int) speed);
+        }
+
+        @Override
+        public void onLocationServiceSpeedActivityChangedListener(boolean active) {
+            // Nothing to do
         }
     };
-
-    private static int convertM_S_to_KM_H(float value) {
-        return Math.round(value * 3.6f);
-    }
 }

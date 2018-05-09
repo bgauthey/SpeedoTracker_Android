@@ -12,14 +12,16 @@ public interface SpeedTrackingContract {
     interface View extends BaseView<Presenter> {
         void updateButtonState(boolean start);
 
+        void showTrackingNotReady();
+
         void showInstantSpeedScreen();
 
         void showFeedbackScreen();
     }
 
     interface Presenter extends BasePresenter {
-        void startTracking();
+        void toggleTracking();
 
-        void stopTracking();
+        void startTracking();
     }
 }

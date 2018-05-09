@@ -54,7 +54,7 @@ public class FeedbackFragment extends Fragment implements FeedbackContract.View 
 
     @Override
     public void showAverageSpeed(float averageSpeed) {
-
+        mTvAverageSpeed.setText(getString(R.string.average_speed_label, averageSpeed));
     }
 
     @Override

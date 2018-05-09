@@ -10,6 +10,8 @@ import android.util.Log;
 
 import com.bgauthey.speedotracker.util.PermissionUtils;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * @author bgauthey created on 08/05/2018.
  */
@@ -77,6 +79,11 @@ public final class GpsLocationService extends LocationService {
         updateTrackingState(false);
     }
 
+    @Override
+    public float getAverageSpeedHistory() {
+        return convertMsToKmH(mLocationListener.getDistance() / mLocationListener.getTimeElapsed());
+    }
+
     private void initComponents(Context context) {
         Log.d(TAG, "initComponents");
         mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
@@ -84,17 +91,47 @@ public final class GpsLocationService extends LocationService {
     }
 
     private class LocationListenerImpl implements android.location.LocationListener {
-        Location mLastLocation;
+        Location beginLocation;
+        float distance = 0f; // in meters
+        long timeElapsed = 0L; // in seconds
 
         LocationListenerImpl(String provider) {
             Log.d(TAG, "LocationListener " + provider);
-            mLastLocation = new Location(provider);
+            beginLocation = new Location(provider);
+        }
+
+        /**
+         * Get distance between location where speed was activated and location where speed was deactivated.
+         * @return distance in meters
+         */
+        public float getDistance() {
+            return distance;
+        }
+
+        /**
+         * Get elapsed time between speed activation and speed deactivation
+         * @return elapsed time in seconds
+         */
+        public long getTimeElapsed() {
+            return timeElapsed;
         }
 
         @Override
         public void onLocationChanged(Location location) {
             Log.d(TAG, "onLocationChanged: " + location);
-            mLastLocation.set(location);
+            if (location.getSpeed() > 0 && beginLocation.getSpeed() == 0) {
+                beginLocation.set(location);
+                notifyOnSpeedActivityChanged(true);
+            } else if (location.getSpeed() == 0 && beginLocation.getSpeed() > 0) {
+                // compute distance and elapsed time
+                distance = computeDistance(beginLocation, location);
+                timeElapsed = computeTimeElapsed(beginLocation, location);
+                // Reset begin location to be ready for next record
+                resetBeginLocation();
+                // notify about speed activity change
+                notifyOnSpeedActivityChanged(false);
+            }
+            updateLocationSpeed(location.getSpeed());
         }
 
         @Override
@@ -121,6 +158,18 @@ public final class GpsLocationService extends LocationService {
             }
         }
 
+        private void resetBeginLocation() {
+            beginLocation.reset();
+        }
+
+        private float computeDistance(Location from, Location to) {
+            return from.distanceTo(to);
+        }
+
+        private long computeTimeElapsed(Location from, Location to) {
+            return TimeUnit.NANOSECONDS.toSeconds(from.getElapsedRealtimeNanos() - to.getElapsedRealtimeNanos());
+        }
+
         private boolean isTargetProvider(String provider) {
             return LOCATION_PROVIDER.equals(provider);
         }
@@ -132,6 +181,16 @@ public final class GpsLocationService extends LocationService {
     }
 
     private void updateLocationSpeed(float speed) {
-        notifyOnSpeedChanged(speed);
+        notifyOnSpeedChanged(convertMsToKmH(speed));
+    }
+
+    /**
+     * Convert m/s speed to km/h
+     *
+     * @param value value to convert
+     * @return value expressed in km/h
+     */
+    private static int convertMsToKmH(float value) {
+        return Math.round(value * 3.6f);
     }
 }

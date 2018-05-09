@@ -11,11 +11,12 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class FakeLocationService extends LocationService {
 
     private static final long INTERVAL_TIME = 1000L;
+    private static final float[] FAKE_SPEEDS = {8, 12, 28, 45, 60, 72, 90, 120, 70, 60, 20, 12, 0, 0};
+    private static final float FAKE_AVERAGE_SPEED = 55.2f;
 
     private static FakeLocationService sInstance = null;
 
     private AtomicInteger mSpeedSelector = new AtomicInteger(0);
-    private float[] mSpeeds = {8, 12, 28, 45, 60, 72, 90, 120, 70, 60, 20, 12, 0, 0};
     private boolean mTrackingEnabled = false;
     private Handler mHandler;
 
@@ -63,10 +64,21 @@ public class FakeLocationService extends LocationService {
         notifyOnStateChanged(false);
     }
 
+    @Override
+    public float getAverageSpeedHistory() {
+        return FAKE_AVERAGE_SPEED;
+    }
+
     private final Runnable mSpeedGenerator = new Runnable() {
         @Override
         public void run() {
-            notifyOnSpeedChanged(mSpeeds[mSpeedSelector.getAndIncrement() % mSpeeds.length]);
+            float speed = FAKE_SPEEDS[mSpeedSelector.getAndIncrement() % FAKE_SPEEDS.length];
+            notifyOnSpeedChanged(speed);
+            if (speed == 0) {
+                notifyOnSpeedActivityChanged(false);
+            } else {
+                notifyOnSpeedActivityChanged(true);
+            }
             mHandler.postDelayed(this, INTERVAL_TIME);
         }
     };

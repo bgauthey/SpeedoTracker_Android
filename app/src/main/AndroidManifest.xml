@@ -15,17 +15,14 @@
         <activity
             android:name=".speedtracking.SpeedTrackingActivity"
             android:label="@string/app_name"
-            android:theme="@style/AppTheme.NoActionBar">
+            android:theme="@style/AppTheme.NoActionBar"
+            android:screenOrientation="locked">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-
-        <service
-            android:name=".service.GpsLocationService"
-            android:process=":location_service"/>
     </application>
 
 </manifest>

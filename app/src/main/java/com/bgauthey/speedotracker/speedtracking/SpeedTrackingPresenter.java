@@ -31,13 +31,19 @@ public class SpeedTrackingPresenter implements SpeedTrackingContract.Presenter {
     }
 
     @Override
-    public void startTracking() {
-        mLocationService.startTracking();
+    public void toggleTracking() {
+        if (!mLocationService.isTrackingReady()) {
+            mView.showTrackingNotReady();
+        } else if (!mLocationService.isTrackingStarted()) {
+            mLocationService.startTracking();
+        } else {
+            mLocationService.stopTracking();
+        }
     }
 
     @Override
-    public void stopTracking() {
-        mLocationService.stopTracking();
+    public void startTracking() {
+        mLocationService.startTracking();
     }
 
     private void showInstantSpeedScreen(boolean show) {
@@ -63,13 +69,20 @@ public class SpeedTrackingPresenter implements SpeedTrackingContract.Presenter {
 
     private final LocationService.OnLocationServiceSpeedChangedListener mOnLocationServiceSpeedChangedListener
             = new LocationService.OnLocationServiceSpeedChangedListener() {
+
+        @Override
+        public void onLocationServiceSpeedActivityChangedListener(boolean active) {
+            showInstantSpeedScreen(active);
+        }
+
         @Override
         public void onLocationServiceSpeedChangedListener(float speed) {
-            if (speed == 0) {
-                showInstantSpeedScreen(false);
-            } else {
-                showInstantSpeedScreen(true);
-            }
+            // Nothing to do
+//            if (speed == 0) {
+//                showInstantSpeedScreen(false);
+//            } else {
+//                showInstantSpeedScreen(true);
+//            }
         }
     };
 }
