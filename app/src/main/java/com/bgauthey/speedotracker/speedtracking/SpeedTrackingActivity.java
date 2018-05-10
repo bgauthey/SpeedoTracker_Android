@@ -1,5 +1,6 @@
 package com.bgauthey.speedotracker.speedtracking;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -8,6 +9,7 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
@@ -21,8 +23,8 @@ import com.bgauthey.speedotracker.service.LocationService;
 import com.bgauthey.speedotracker.util.PermissionUtils;
 
 /**
- * Main activity displaying a toolbar with a button to enable/disable speed tracking.
- * Activity displays instant speed on screen and feedback on speed (average) on another screen. These
+ * Main activity displaying a {@link Toolbar} with a {@link FloatingActionButton} to enable/disable speed tracking.
+ * Activity displays instant speed on a screen and feedback on average speed on another screen. These
  * two screens are handled by a {@link ViewPager}.
  */
 public class SpeedTrackingActivity extends AppCompatActivity implements SpeedTrackingContract.View {
@@ -47,7 +49,7 @@ public class SpeedTrackingActivity extends AppCompatActivity implements SpeedTra
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        final LocationService locationService = Injection.provideLocationService(getApplicationContext());
+        final LocationService locationService = Injection.provideLocationProvider(getApplicationContext());
 
         mPresenter = new SpeedTrackingPresenter(this, locationService);
 
@@ -159,7 +161,7 @@ public class SpeedTrackingActivity extends AppCompatActivity implements SpeedTra
         if (!PermissionUtils.isLocationPermissionGranted(SpeedTrackingActivity.this)) {
             PermissionUtils.requestLocationPermission(SpeedTrackingActivity.this);
         } else {
-            startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+            showEnableLocationAlertDialog();
         }
     }
 
@@ -181,6 +183,31 @@ public class SpeedTrackingActivity extends AppCompatActivity implements SpeedTra
     ///////////////////////////////////////////////////////////////////////////
     // Class methods
     ///////////////////////////////////////////////////////////////////////////
+
+    /**
+     * Displays an {@link AlertDialog} requesting user to enable device location.
+     * <p>
+     * By clicking positive button user will be redirected to location settings page.
+     * By clicking negative button, dialog is dismissed.
+     */
+    private void showEnableLocationAlertDialog() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.speed_tracking_dialog_title)
+                .setMessage(R.string.speed_tracking_dialog_message)
+                .setPositiveButton(R.string.speed_tracking_dialog_positive_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface paramDialogInterface, int paramInt) {
+                        startActivity(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS));
+                    }
+                })
+                .setNegativeButton(R.string.speed_tracking_dialog_negative_button, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int paramInt) {
+                        dialog.dismiss();
+                    }
+                })
+                .show();
+    }
 
     private void updateFloatingButtonState(boolean start) {
         @DrawableRes int res = start ? android.R.drawable.ic_media_play : android.R.drawable.ic_media_pause;

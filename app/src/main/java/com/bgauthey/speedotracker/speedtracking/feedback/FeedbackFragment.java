@@ -12,9 +12,8 @@ import android.widget.TextView;
 import com.bgauthey.speedotracker.R;
 
 /**
- * @author bgauthey created on 08/05/2018.
+ * Displays average speed on last section in a {@link TextView}.
  */
-
 public class FeedbackFragment extends Fragment implements FeedbackContract.View {
 
     private FeedbackContract.Presenter mPresenter;
@@ -29,6 +28,10 @@ public class FeedbackFragment extends Fragment implements FeedbackContract.View 
         fragment.setArguments(args);
         return fragment;
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Fragment lifecycle
+    ///////////////////////////////////////////////////////////////////////////
 
     @Nullable
     @Override
@@ -52,6 +55,11 @@ public class FeedbackFragment extends Fragment implements FeedbackContract.View 
         mPresenter.stop();
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Interface implementation
+    ///////////////////////////////////////////////////////////////////////////
+
+    //region FeedbackContract.View
     @Override
     public void showAverageSpeed(float averageSpeed) {
         mTvAverageSpeed.setText(getString(R.string.average_speed_label, averageSpeed));
@@ -61,4 +69,5 @@ public class FeedbackFragment extends Fragment implements FeedbackContract.View 
     public void setPresenter(FeedbackContract.Presenter presenter) {
         mPresenter = presenter;
     }
+    //endregion
 }

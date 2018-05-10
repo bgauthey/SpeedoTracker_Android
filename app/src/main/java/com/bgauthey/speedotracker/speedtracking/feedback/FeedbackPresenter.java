@@ -3,9 +3,8 @@ package com.bgauthey.speedotracker.speedtracking.feedback;
 import com.bgauthey.speedotracker.service.LocationService;
 
 /**
- * @author bgauthey created on 08/05/2018.
+ * Gets information from the model layer and updates UI as required.
  */
-
 public class FeedbackPresenter implements FeedbackContract.Presenter {
 
     private FeedbackContract.View mView;
@@ -16,6 +15,10 @@ public class FeedbackPresenter implements FeedbackContract.Presenter {
         mView.setPresenter(this);
         mLocationService = locationService;
     }
+
+    ///////////////////////////////////////////////////////////////////////////
+    // Interface implementation
+    ///////////////////////////////////////////////////////////////////////////
 
     @Override
     public void start() {

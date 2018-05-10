@@ -3,6 +3,7 @@ package com.bgauthey.speedotracker.service;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.location.Location;
+import android.location.LocationListener;
 import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
@@ -13,19 +14,35 @@ import com.bgauthey.speedotracker.util.PermissionUtils;
 import java.util.concurrent.TimeUnit;
 
 /**
- * @author bgauthey created on 08/05/2018.
+ * A {@link LocationService} that uses GPS to get location and speed.
  */
-
 public final class GpsLocationService extends LocationService {
 
     private static final String TAG = GpsLocationService.class.getSimpleName();
 
+    private static final float FACTOR_M_PER_S_TO_KM_PER_H = 3.6f;
+
+    /**
+     * Location provider use to track speed: GPS
+     */
     private static final String LOCATION_PROVIDER = LocationManager.GPS_PROVIDER;
-    private static final long INTERVAL_TIME = 1_000L * 2; // 2 s
-    private static final long INTERVAL_DISTANCE = 100; // 100 m
+
+    /**
+     * Minimum time interval to update the location (in milliseconds)
+     */
+    private static final long MIN_INTERVAL_TIME = 500L;
+    /**
+     * Minimum distance interval to update the location (in meters)
+     */
+    private static final long MIN_INTERVAL_DISTANCE = 0L;
+
+    /**
+     * Minimum speed to consider user is moving (in m/s)
+     */
+    private static final float MIN_SPEED_RUNNING = 3f / FACTOR_M_PER_S_TO_KM_PER_H; // 3 km/h (in m/s)
 
     private LocationManager mLocationManager = null;
-    private LocationListenerImpl mLocationListener = null;
+    private GpsLocationListener mLocationListener = null;
     private Context mContext;
     private boolean mTrackingEnabled = false;
 
@@ -37,6 +54,11 @@ public final class GpsLocationService extends LocationService {
         initComponents(context);
     }
 
+    /**
+     * Get instance of {@link GpsLocationService}.
+     * @param context the application context
+     * @return instance
+     */
     public static GpsLocationService getInstance(Context context) {
         if (sInstance == null) {
             sInstance = new GpsLocationService(context);
@@ -50,17 +72,8 @@ public final class GpsLocationService extends LocationService {
     }
 
     @Override
-    public boolean isTrackingStarted() {
+    public boolean isTrackingRunning() {
         return mTrackingEnabled;
-    }
-
-    @Override
-    public void toggleTracking() {
-        if (mTrackingEnabled) {
-            stopTracking();
-        } else {
-            startTracking();
-        }
     }
 
     @Override
@@ -69,8 +82,8 @@ public final class GpsLocationService extends LocationService {
         if (!isTrackingReady()) {
             return;
         }
-        mLocationManager.requestLocationUpdates(LOCATION_PROVIDER, INTERVAL_TIME, INTERVAL_DISTANCE, mLocationListener);
-        updateTrackingState(true);
+        mLocationManager.requestLocationUpdates(LOCATION_PROVIDER, MIN_INTERVAL_TIME, MIN_INTERVAL_DISTANCE, mLocationListener);
+//        updateTrackingState(true);
     }
 
     @Override
@@ -87,21 +100,23 @@ public final class GpsLocationService extends LocationService {
     private void initComponents(Context context) {
         Log.d(TAG, "initComponents");
         mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-        mLocationListener = new LocationListenerImpl(LOCATION_PROVIDER);
+        mLocationListener = new GpsLocationListener();
     }
 
-    private class LocationListenerImpl implements android.location.LocationListener {
+    private class GpsLocationListener implements LocationListener {
         Location beginLocation;
+        Location lastLocation;
         float distance = 0f; // in meters
         long timeElapsed = 0L; // in seconds
 
-        LocationListenerImpl(String provider) {
-            Log.d(TAG, "LocationListener " + provider);
-            beginLocation = new Location(provider);
+        GpsLocationListener() {
+            beginLocation = new Location(LOCATION_PROVIDER);
+            lastLocation = new Location(LOCATION_PROVIDER);
         }
 
         /**
          * Get distance between location where speed was activated and location where speed was deactivated.
+         *
          * @return distance in meters
          */
         public float getDistance() {
@@ -110,6 +125,7 @@ public final class GpsLocationService extends LocationService {
 
         /**
          * Get elapsed time between speed activation and speed deactivation
+         *
          * @return elapsed time in seconds
          */
         public long getTimeElapsed() {
@@ -119,25 +135,34 @@ public final class GpsLocationService extends LocationService {
         @Override
         public void onLocationChanged(Location location) {
             Log.d(TAG, "onLocationChanged: " + location);
-            if (location.getSpeed() > 0 && beginLocation.getSpeed() == 0) {
+            lastLocation.set(location);
+            if (location.getSpeed() >= MIN_SPEED_RUNNING && beginLocation.getSpeed() == 0) {
+                // Starting point for tracking
                 beginLocation.set(location);
                 notifyOnSpeedActivityChanged(true);
-            } else if (location.getSpeed() == 0 && beginLocation.getSpeed() > 0) {
+            } else if (location.getSpeed() < MIN_SPEED_RUNNING && beginLocation.getSpeed() > 0) {
+                // Ending point for tracking
                 // compute distance and elapsed time
-                distance = computeDistance(beginLocation, location);
-                timeElapsed = computeTimeElapsed(beginLocation, location);
-                // Reset begin location to be ready for next record
-                resetBeginLocation();
+                updateSectionParamsToLocation(location);
+                // Reset stored location to be ready for next record
+                resetLocations();
                 // notify about speed activity change
                 notifyOnSpeedActivityChanged(false);
             }
-            updateLocationSpeed(location.getSpeed());
+            updateLocationSpeed(location.getSpeed(), location);
         }
 
         @Override
         public void onProviderDisabled(String provider) {
             Log.d(TAG, "onProviderDisabled: " + provider);
+            // When provider is disabled, record stopped
+            // Compute section params according to the last known location
+            updateSectionParamsToLocation(lastLocation);
+            // Reset locations
+            resetLocations();
+            // Update and notify about state's changes
             updateTrackingState(false);
+            notifyOnSpeedActivityChanged(false);
         }
 
         @Override
@@ -158,20 +183,21 @@ public final class GpsLocationService extends LocationService {
             }
         }
 
-        private void resetBeginLocation() {
+        private void resetLocations() {
             beginLocation.reset();
         }
 
+        private void updateSectionParamsToLocation(Location toLocation) {
+            distance = computeDistance(beginLocation, toLocation);
+            timeElapsed = computeTimeElapsed(beginLocation, toLocation);
+        }
+
         private float computeDistance(Location from, Location to) {
-            return from.distanceTo(to);
+            return Math.max(0, from.distanceTo(to));
         }
 
         private long computeTimeElapsed(Location from, Location to) {
-            return TimeUnit.NANOSECONDS.toSeconds(from.getElapsedRealtimeNanos() - to.getElapsedRealtimeNanos());
-        }
-
-        private boolean isTargetProvider(String provider) {
-            return LOCATION_PROVIDER.equals(provider);
+            return Math.max(0, TimeUnit.NANOSECONDS.toSeconds(from.getElapsedRealtimeNanos() - to.getElapsedRealtimeNanos()));
         }
     }
 
@@ -180,8 +206,8 @@ public final class GpsLocationService extends LocationService {
         notifyOnStateChanged(enabled);
     }
 
-    private void updateLocationSpeed(float speed) {
-        notifyOnSpeedChanged(convertMsToKmH(speed));
+    private void updateLocationSpeed(float speed, Location location) {
+        notifyOnSpeedChanged(convertMsToKmH(speed), location);
     }
 
     /**
@@ -191,6 +217,6 @@ public final class GpsLocationService extends LocationService {
      * @return value expressed in km/h
      */
     private static int convertMsToKmH(float value) {
-        return Math.round(value * 3.6f);
+        return Math.round(value * FACTOR_M_PER_S_TO_KM_PER_H);
     }
 }

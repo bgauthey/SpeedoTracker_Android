@@ -4,9 +4,8 @@ import com.bgauthey.speedotracker.BasePresenter;
 import com.bgauthey.speedotracker.BaseView;
 
 /**
- * @author bgauthey created on 08/05/2018.
+ * Contract for Feedback screen displaying average speed on last section.
  */
-
 public interface FeedbackContract {
 
     interface View extends BaseView<Presenter> {

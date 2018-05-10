@@ -1,11 +1,12 @@
 package com.bgauthey.speedotracker.speedtracking.instantspeed;
 
+import android.location.Location;
+
 import com.bgauthey.speedotracker.service.LocationService;
 
 /**
- * @author bgauthey created on 08/05/2018.
+ * Listens to {@link LocationService} updates and updates the UI as required.
  */
-
 public class InstantSpeedPresenter implements InstantSpeedContract.Presenter {
 
     private InstantSpeedContract.View mView;
@@ -31,8 +32,9 @@ public class InstantSpeedPresenter implements InstantSpeedContract.Presenter {
 
     private final LocationService.OnLocationServiceSpeedChangedListener mSpeedChangedListener = new LocationService.OnLocationServiceSpeedChangedListener() {
         @Override
-        public void onLocationServiceSpeedChangedListener(float speed) {
+        public void onLocationServiceSpeedChangedListener(float speed, Location location) {
             mView.showSpeed((int) speed);
+            mView.showLocationDebug(location);
         }
 
         @Override

@@ -1,5 +1,6 @@
 package com.bgauthey.speedotracker.speedtracking.instantspeed;
 
+import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,14 +13,14 @@ import android.widget.TextView;
 import com.bgauthey.speedotracker.R;
 
 /**
- * @author bgauthey created on 08/05/2018.
+ * Displays instant speed in a {@link TextView}
  */
-
 public class InstantSpeedFragment extends Fragment implements InstantSpeedContract.View {
 
     private InstantSpeedContract.Presenter mPresenter;
 
     private TextView mTvSpeed;
+    private TextView mTvDebug;
 
     public static InstantSpeedFragment newInstance() {
 
@@ -30,12 +31,17 @@ public class InstantSpeedFragment extends Fragment implements InstantSpeedContra
         return fragment;
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Fragment lifecycle
+    ///////////////////////////////////////////////////////////////////////////
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_instant_speed, container, false);
 
         mTvSpeed = v.findViewById(R.id.tv_fis_speed);
+        mTvDebug = v.findViewById(R.id.tv_location_debug);
 
         return v;
     }
@@ -56,7 +62,6 @@ public class InstantSpeedFragment extends Fragment implements InstantSpeedContra
     // Interface implementation
     ///////////////////////////////////////////////////////////////////////////
 
-
     @Override
     public void setPresenter(InstantSpeedContract.Presenter presenter) {
         mPresenter = presenter;
@@ -65,5 +70,12 @@ public class InstantSpeedFragment extends Fragment implements InstantSpeedContra
     @Override
     public void showSpeed(int speedValue) {
         mTvSpeed.setText(getString(R.string.speed_label, speedValue));
+    }
+
+    @Override
+    public void showLocationDebug(Location location) {
+        mTvDebug.setText("Location: speed=" + location.getSpeed() + ", long=" + location.getLongitude()
+                + ", lat=" + location.getLatitude() + ", accuracy=" + location.getAccuracy()
+                + ", time=" + location.getTime());
     }
 }

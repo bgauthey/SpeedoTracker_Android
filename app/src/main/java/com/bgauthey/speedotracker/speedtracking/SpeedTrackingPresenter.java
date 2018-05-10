@@ -1,5 +1,7 @@
 package com.bgauthey.speedotracker.speedtracking;
 
+import android.location.Location;
+
 import com.bgauthey.speedotracker.service.LocationService;
 
 /**
@@ -34,7 +36,7 @@ public class SpeedTrackingPresenter implements SpeedTrackingContract.Presenter {
     public void toggleTracking() {
         if (!mLocationService.isTrackingReady()) {
             mView.showTrackingNotReady();
-        } else if (!mLocationService.isTrackingStarted()) {
+        } else if (!mLocationService.isTrackingRunning()) {
             mLocationService.startTracking();
         } else {
             mLocationService.stopTracking();
@@ -76,7 +78,7 @@ public class SpeedTrackingPresenter implements SpeedTrackingContract.Presenter {
         }
 
         @Override
-        public void onLocationServiceSpeedChangedListener(float speed) {
+        public void onLocationServiceSpeedChangedListener(float speed, Location location) {
             // Nothing to do
 //            if (speed == 0) {
 //                showInstantSpeedScreen(false);
