@@ -16,6 +16,8 @@ import com.bgauthey.speedotracker.R;
  */
 public class FeedbackFragment extends Fragment implements FeedbackContract.View {
 
+    public static final String TAG = FeedbackFragment.class.getSimpleName();
+
     private FeedbackContract.Presenter mPresenter;
 
     private TextView mTvAverageSpeed;

@@ -39,13 +39,14 @@ public final class GpsLocationProvider extends LocationService implements Locati
     /**
      * Minimum speed to consider user is moving (in m/s)
      */
-    private static final float MIN_SPEED_RUNNING = 3f / FACTOR_M_PER_S_TO_KM_PER_H; // 3 km/h (in m/s)
+    private static final float MIN_SPEED_RUNNING = 1f / FACTOR_M_PER_S_TO_KM_PER_H; // 3 km/h (in m/s)
 
     private LocationManager mLocationManager = null;
     private Context mContext;
     private Location mStartLocation;
     private Location mLastLocation;
     private boolean mTrackingRunning;
+    private boolean mSpeedActive = false;
     /**
      * Distance between location where speed was activated and location where speed was deactivated (in meters)
      */
@@ -98,6 +99,11 @@ public final class GpsLocationProvider extends LocationService implements Locati
         notifyOnSpeedChanged(convertMsToKmH(speed), location);
     }
 
+    private void updateSpeedActive(boolean active) {
+        mSpeedActive = active;
+        notifyOnSpeedActivityChanged(active);
+    }
+
     private void resetLocations() {
         mStartLocation.reset();
         mLastLocation.reset();
@@ -148,13 +154,18 @@ public final class GpsLocationProvider extends LocationService implements Locati
             return;
         }
         mLocationManager.requestLocationUpdates(LOCATION_PROVIDER, MIN_INTERVAL_TIME, MIN_INTERVAL_DISTANCE, this);
-//        updateTrackingState(true);
+        updateTrackingState(true);
     }
 
     @Override
     public void stopTracking() {
         mLocationManager.removeUpdates(this);
         updateTrackingState(false);
+    }
+
+    @Override
+    public boolean isSpeedActive() {
+        return mSpeedActive;
     }
 
     @Override
@@ -171,7 +182,7 @@ public final class GpsLocationProvider extends LocationService implements Locati
         if (location.getSpeed() >= MIN_SPEED_RUNNING && mStartLocation.getSpeed() == 0) {
             // Starting point for tracking
             mStartLocation.set(location);
-            notifyOnSpeedActivityChanged(true);
+            updateSpeedActive(true);
         } else if (location.getSpeed() < MIN_SPEED_RUNNING && mStartLocation.getSpeed() > 0) {
             // Ending point for tracking
             // compute distance and elapsed time
@@ -179,7 +190,7 @@ public final class GpsLocationProvider extends LocationService implements Locati
             // Reset stored location to be ready for next record
             resetLocations();
             // notify about speed activity change
-            notifyOnSpeedActivityChanged(false);
+            updateSpeedActive(false);
         }
         updateLocationSpeed(location.getSpeed(), location);
     }
@@ -194,7 +205,7 @@ public final class GpsLocationProvider extends LocationService implements Locati
         resetLocations();
         // Update and notify about state's changes
         updateTrackingState(false);
-        notifyOnSpeedActivityChanged(false);
+        updateSpeedActive(false);
     }
 
     @Override

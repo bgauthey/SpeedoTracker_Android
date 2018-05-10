@@ -5,15 +5,13 @@ import android.location.Location;
 import com.bgauthey.speedotracker.service.LocationService;
 
 /**
- * @author bgauthey created on 08/05/2018.
+ * Listens to user actions from the UI {@link SpeedTrackingActivity}, retrieves the data and updates
+ * the UI as required.
  */
-
 public class SpeedTrackingPresenter implements SpeedTrackingContract.Presenter {
 
     private SpeedTrackingContract.View mView;
     private LocationService mLocationService;
-
-    private boolean mInstantSpeedScreenDisplayed = false;
 
     public SpeedTrackingPresenter(SpeedTrackingContract.View view, LocationService locationService) {
         mView = view;
@@ -24,6 +22,7 @@ public class SpeedTrackingPresenter implements SpeedTrackingContract.Presenter {
     public void start() {
         mLocationService.registerOnLocationServiceStateChangedListener(mLocationServiceStateChangedListener);
         mLocationService.registerOnLocationServiceSpeedChangedListener(mOnLocationServiceSpeedChangedListener);
+        showInstantSpeedScreen(mLocationService.isSpeedActive());
     }
 
     @Override
@@ -49,10 +48,10 @@ public class SpeedTrackingPresenter implements SpeedTrackingContract.Presenter {
     }
 
     private void showInstantSpeedScreen(boolean show) {
-        if (mInstantSpeedScreenDisplayed == show) {
-            return;
-        }
-        mInstantSpeedScreenDisplayed = show;
+//        if (mInstantSpeedScreenDisplayed == show) {
+//            return;
+//        }
+//        mInstantSpeedScreenDisplayed = show;
         if (show) {
             mView.showInstantSpeedScreen();
         } else {
@@ -80,11 +79,6 @@ public class SpeedTrackingPresenter implements SpeedTrackingContract.Presenter {
         @Override
         public void onLocationServiceSpeedChangedListener(float speed, Location location) {
             // Nothing to do
-//            if (speed == 0) {
-//                showInstantSpeedScreen(false);
-//            } else {
-//                showInstantSpeedScreen(true);
-//            }
         }
     };
 }

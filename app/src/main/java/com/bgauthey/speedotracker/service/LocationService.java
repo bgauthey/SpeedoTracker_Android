@@ -74,6 +74,8 @@ public abstract class LocationService {
      */
     public abstract void stopTracking();
 
+    public abstract boolean isSpeedActive();
+
     /**
      * Get the average speed for the last section.
      * <p>

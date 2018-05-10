@@ -16,6 +16,9 @@
 
 package com.bgauthey.speedotracker;
 
+/**
+ * Base presenter for presenters defined by MVP pattern.
+ */
 public interface BasePresenter {
 
     void start();

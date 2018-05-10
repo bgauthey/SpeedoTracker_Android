@@ -12,7 +12,6 @@ public class FeedbackPresenter implements FeedbackContract.Presenter {
 
     public FeedbackPresenter(FeedbackContract.View view, LocationService locationService) {
         mView = view;
-        mView.setPresenter(this);
         mLocationService = locationService;
     }
 

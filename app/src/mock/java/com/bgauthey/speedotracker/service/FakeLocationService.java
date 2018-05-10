@@ -1,5 +1,6 @@
 package com.bgauthey.speedotracker.service;
 
+import android.location.Location;
 import android.os.Handler;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -17,8 +18,9 @@ public class FakeLocationService extends LocationService {
     private static FakeLocationService sInstance = null;
 
     private AtomicInteger mSpeedSelector = new AtomicInteger(0);
-    private boolean mTrackingEnabled = false;
     private Handler mHandler;
+    private boolean mTrackingEnabled = false;
+    private boolean mSpeedRunning = false;
 
     private FakeLocationService() {
         mHandler = new Handler();
@@ -37,17 +39,8 @@ public class FakeLocationService extends LocationService {
     }
 
     @Override
-    public boolean isTrackingStarted() {
+    public boolean isTrackingRunning() {
         return mTrackingEnabled;
-    }
-
-    @Override
-    public void toggleTracking() {
-        if (isTrackingStarted()) {
-            stopTracking();
-        } else {
-            startTracking();
-        }
     }
 
     @Override
@@ -69,16 +62,18 @@ public class FakeLocationService extends LocationService {
         return FAKE_AVERAGE_SPEED;
     }
 
+    @Override
+    public boolean isSpeedActive() {
+        return mSpeedRunning;
+    }
+
     private final Runnable mSpeedGenerator = new Runnable() {
         @Override
         public void run() {
             float speed = FAKE_SPEEDS[mSpeedSelector.getAndIncrement() % FAKE_SPEEDS.length];
-            notifyOnSpeedChanged(speed);
-            if (speed == 0) {
-                notifyOnSpeedActivityChanged(false);
-            } else {
-                notifyOnSpeedActivityChanged(true);
-            }
+            notifyOnSpeedChanged(speed, new Location(""));
+            mSpeedRunning = speed != 0;
+            notifyOnSpeedActivityChanged(mSpeedRunning);
             mHandler.postDelayed(this, INTERVAL_TIME);
         }
     };

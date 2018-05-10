@@ -7,12 +7,12 @@ import com.bgauthey.speedotracker.service.FakeLocationService;
 import com.bgauthey.speedotracker.service.LocationService;
 
 /**
- * @author bgauthey created on 08/05/2018.
+ * Enables injection of mock implementations for {@link LocationService}
  */
 
 public class Injection {
 
-    public static LocationService provideLocationService(@NonNull Context context) {
+    public static LocationService provideLocationProvider(@NonNull Context context) {
         return FakeLocationService.getInstance();
     }
 }

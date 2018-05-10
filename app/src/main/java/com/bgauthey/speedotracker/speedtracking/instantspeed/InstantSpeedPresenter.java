@@ -14,8 +14,6 @@ public class InstantSpeedPresenter implements InstantSpeedContract.Presenter {
 
     public InstantSpeedPresenter(InstantSpeedContract.View view, LocationService locationService) {
         mView = view;
-        mView.setPresenter(this);
-
         mLocationService = locationService;
     }
 

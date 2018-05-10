@@ -7,8 +7,8 @@ import android.provider.Settings;
 import android.support.annotation.DrawableRes;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.FloatingActionButton;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -19,20 +19,19 @@ import android.view.View;
 
 import com.bgauthey.speedotracker.Injection;
 import com.bgauthey.speedotracker.R;
-import com.bgauthey.speedotracker.service.LocationService;
 import com.bgauthey.speedotracker.util.PermissionUtils;
 
 /**
  * Main activity displaying a {@link Toolbar} with a {@link FloatingActionButton} to enable/disable speed tracking.
- * Activity displays instant speed on a screen and feedback on average speed on another screen. These
- * two screens are handled by a {@link ViewPager}.
+ * Activity displays instant speed on a screen and feedback on average speed on another screen (a Bottom Sheet).
  */
 public class SpeedTrackingActivity extends AppCompatActivity implements SpeedTrackingContract.View {
 
+    private AppBarLayout mAppBarLayout;
     private FloatingActionButton mTrackingButton;
     private MenuItem mTrackingMenuItem;
-    private ViewPager mViewPager;
-    private AppBarLayout mAppBarLayout;
+
+    private BottomSheetBehavior mBottomSheetBehavior;
 
     private SpeedTrackingContract.Presenter mPresenter;
 
@@ -49,40 +48,8 @@ public class SpeedTrackingActivity extends AppCompatActivity implements SpeedTra
         final Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        final LocationService locationService = Injection.provideLocationProvider(getApplicationContext());
-
-        mPresenter = new SpeedTrackingPresenter(this, locationService);
-
         mAppBarLayout = findViewById(R.id.app_bar);
-
-//        InstantSpeedFragment instantSpeedFragment =
-//                (InstantSpeedFragment) getSupportFragmentManager().findFragmentById(R.id.fl_fragment_container);
-//
-//        if (instantSpeedFragment == null) {
-//            instantSpeedFragment = InstantSpeedFragment.newInstance();
-//
-//            ActivityUtils.addFragmentToActivity(getSupportFragmentManager(), instantSpeedFragment, R.id.fl_fragment_container);
-//        }
-//        new InstantSpeedPresenter(instantSpeedFragment, locationService);
-//
-//        FeedbackFragment feedbackFragment =
-//                (FeedbackFragment) getSupportFragmentManager().findFragmentById(R.id.fl_bottom_sheet_container);
-//
-//        if (feedbackFragment == null) {
-//            feedbackFragment = FeedbackFragment.newInstance();
-//
-//            ActivityUtils.addFragmentToActivity(getSupportFragmentManager(), feedbackFragment, R.id.fl_bottom_sheet_container);
-//        }
-//        new FeedbackPresenter(feedbackFragment);
-
-        mViewPager = findViewById(R.id.view_pager);
-//        InstantSpeedFragment instantSpeedFragment = InstantSpeedFragment.newInstance();
-//        new InstantSpeedPresenter(instantSpeedFragment, locationService);
-//        FeedbackFragment feedbackFragment = FeedbackFragment.newInstance();
-//        new FeedbackPresenter(feedbackFragment, locationService);
-
-        SpeedViewPagerAdapter adapter = new SpeedViewPagerAdapter(getSupportFragmentManager(), locationService);
-        mViewPager.setAdapter(adapter);
+        mBottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.fl_bottom_sheet_container));
 
         mTrackingButton = findViewById(R.id.fab);
         mTrackingButton.setOnClickListener(new View.OnClickListener() {
@@ -91,6 +58,9 @@ public class SpeedTrackingActivity extends AppCompatActivity implements SpeedTra
                 toggleTracking();
             }
         });
+
+        mPresenter = new SpeedTrackingPresenter(this, Injection.provideLocationProvider(getApplicationContext()));
+        SpeedTrackingController.createSpeedTrackingScreens(this);
     }
 
     @Override
@@ -167,17 +137,12 @@ public class SpeedTrackingActivity extends AppCompatActivity implements SpeedTra
 
     @Override
     public void showInstantSpeedScreen() {
-        mViewPager.setCurrentItem(0);
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     }
 
     @Override
     public void showFeedbackScreen() {
-        mViewPager.setCurrentItem(1);
-    }
-
-    @Override
-    public void setPresenter(SpeedTrackingContract.Presenter presenter) {
-
+        mBottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
     }
 
     ///////////////////////////////////////////////////////////////////////////

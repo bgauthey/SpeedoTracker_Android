@@ -16,7 +16,7 @@ public interface InstantSpeedContract {
         void showLocationDebug(Location location);
     }
 
-    interface Presenter extends BasePresenter{
+    interface Presenter extends BasePresenter {
 
     }
 }

@@ -16,6 +16,11 @@
 
 package com.bgauthey.speedotracker;
 
+/**
+ * Base view for views defined by MVP pattern
+ *
+ * @param <T> the presenter to deal with
+ */
 public interface BaseView<T> {
 
     void setPresenter(T presenter);

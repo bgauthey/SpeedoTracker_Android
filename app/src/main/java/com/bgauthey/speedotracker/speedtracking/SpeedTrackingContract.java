@@ -1,15 +1,13 @@
 package com.bgauthey.speedotracker.speedtracking;
 
 import com.bgauthey.speedotracker.BasePresenter;
-import com.bgauthey.speedotracker.BaseView;
 
 /**
- * @author bgauthey created on 08/05/2018.
+ * Contract of screen displaying Instant Speed and Feedback screens.
  */
-
 public interface SpeedTrackingContract {
 
-    interface View extends BaseView<Presenter> {
+    interface View {
         void updateButtonState(boolean start);
 
         void showTrackingNotReady();
