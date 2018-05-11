@@ -1,5 +1,6 @@
 package com.bgauthey.speedotracker.speedtracking.instantspeed;
 
+import android.annotation.SuppressLint;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -68,12 +69,14 @@ public class InstantSpeedFragment extends Fragment implements InstantSpeedContra
     }
 
     @Override
-    public void showSpeed(int speedValue) {
+    public void showSpeed(String speedValue) {
         mTvSpeed.setText(getString(R.string.speed_label, speedValue));
     }
 
+    @SuppressLint("SetTextI18n")
     @Override
     public void showLocationDebug(Location location) {
+        mTvDebug.setVisibility(View.VISIBLE);
         mTvDebug.setText("Location: speed=" + location.getSpeed() + ", long=" + location.getLongitude()
                 + ", lat=" + location.getLatitude() + ", accuracy=" + location.getAccuracy()
                 + ", time=" + location.getTime());

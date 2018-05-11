@@ -2,7 +2,10 @@ package com.bgauthey.speedotracker.speedtracking.instantspeed;
 
 import android.location.Location;
 
+import com.bgauthey.speedotracker.Constants;
 import com.bgauthey.speedotracker.service.LocationService;
+
+import java.text.DecimalFormat;
 
 /**
  * Listens to {@link LocationService} updates and updates the UI as required.
@@ -20,7 +23,6 @@ public class InstantSpeedPresenter implements InstantSpeedContract.Presenter {
     @Override
     public void start() {
         mLocationService.registerOnLocationServiceSpeedChangedListener(mSpeedChangedListener);
-        mView.showSpeed(0);
     }
 
     @Override
@@ -28,11 +30,17 @@ public class InstantSpeedPresenter implements InstantSpeedContract.Presenter {
         mLocationService.unregisterOnLocationServiceSpeedChangedListener(mSpeedChangedListener);
     }
 
+    ///////////////////////////////////////////////////////////////////////////
+    // Final implementations
+    ///////////////////////////////////////////////////////////////////////////
+
     private final LocationService.OnLocationServiceSpeedChangedListener mSpeedChangedListener = new LocationService.OnLocationServiceSpeedChangedListener() {
         @Override
         public void onLocationServiceSpeedChangedListener(float speed, Location location) {
-            mView.showSpeed((int) speed);
-            mView.showLocationDebug(location);
+            mView.showSpeed(new DecimalFormat("#").format(speed));
+            if (Constants.SHOW_DEBUG_INFO) {
+                mView.showLocationDebug(location);
+            }
         }
 
         @Override

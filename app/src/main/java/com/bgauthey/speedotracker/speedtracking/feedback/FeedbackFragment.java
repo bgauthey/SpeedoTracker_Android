@@ -21,6 +21,7 @@ public class FeedbackFragment extends Fragment implements FeedbackContract.View 
     private FeedbackContract.Presenter mPresenter;
 
     private TextView mTvAverageSpeed;
+    private TextView mTvDebug;
 
     public static FeedbackFragment newInstance() {
 
@@ -41,6 +42,7 @@ public class FeedbackFragment extends Fragment implements FeedbackContract.View 
         View v = inflater.inflate(R.layout.fragment_feedback_speed, container, false);
 
         mTvAverageSpeed = v.findViewById(R.id.tv_ff_speed_value);
+        mTvDebug = v.findViewById(R.id.tv_ff_debug);
 
         return v;
     }
@@ -63,8 +65,15 @@ public class FeedbackFragment extends Fragment implements FeedbackContract.View 
 
     //region FeedbackContract.View
     @Override
-    public void showAverageSpeed(float averageSpeed) {
-        mTvAverageSpeed.setText(getString(R.string.average_speed_label, averageSpeed));
+    public void showAverageSpeed(String averageSpeed) {
+        mTvAverageSpeed.setText(getString(R.string.speed_label, averageSpeed));
+    }
+
+    @Override
+    public void showDebugInfo(float averageSpeed, float distance, int timeElapsed) {
+        mTvDebug.setVisibility(View.VISIBLE);
+        mTvDebug.setText("AS=" + averageSpeed + "\nDistance=" + distance
+                + "\nTime=" + timeElapsed);
     }
 
     @Override

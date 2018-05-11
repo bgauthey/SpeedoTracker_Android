@@ -9,7 +9,9 @@ import com.bgauthey.speedotracker.BaseView;
 public interface FeedbackContract {
 
     interface View extends BaseView<Presenter> {
-        void showAverageSpeed(float averageSpeed);
+        void showAverageSpeed(String averageSpeed);
+
+        void showDebugInfo(float averageSpeed, float distance, int timeElapsed);
     }
 
     interface Presenter extends BasePresenter {

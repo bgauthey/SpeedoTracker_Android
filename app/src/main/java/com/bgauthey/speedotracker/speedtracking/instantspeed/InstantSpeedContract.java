@@ -11,7 +11,7 @@ import com.bgauthey.speedotracker.BaseView;
 public interface InstantSpeedContract {
 
     interface View extends BaseView<Presenter> {
-        void showSpeed(int speedValue);
+        void showSpeed(String speedValue);
 
         void showLocationDebug(Location location);
     }

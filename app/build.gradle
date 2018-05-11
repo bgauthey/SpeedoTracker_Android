@@ -49,13 +49,15 @@ android {
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation "com.android.support:appcompat-v7:$rootProject.supportLibraryVersion"
-    implementation "com.android.support:design:$rootProject.supportLibraryVersion"
-    implementation 'com.android.support.constraint:constraint-layout:1.1.0'
+    implementation "com.android.support:appcompat-v7:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support:design:$rootProject.ext.supportLibraryVersion"
+    implementation "com.android.support.constraint:constraint-layout:$rootProject.ext.constraintLayoutVersion"
+    implementation "com.google.android.gms:play-services-location:$rootProject.ext.playServicesVersion"
+
     testImplementation "junit:junit:$rootProject.ext.junitVersion"
-    testImplementation "org.robolectric:robolectric:3.8"
-    androidTestImplementation 'com.android.support.test:runner:1.0.1'
-    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
-    testImplementation "org.mockito:mockito-all:$rootProject.mockitoVersion"
-    implementation 'com.google.android.gms:play-services-location:15.0.1'
+    testImplementation "org.robolectric:robolectric:$rootProject.ext.robolectricVersion"
+    testImplementation "org.mockito:mockito-core:$rootProject.ext.mockitoVersion"
+
+    androidTestImplementation 'com.android.support.test:runner:1.0.2'
+    androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
 }

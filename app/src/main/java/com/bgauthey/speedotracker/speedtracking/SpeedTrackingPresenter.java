@@ -20,15 +20,13 @@ public class SpeedTrackingPresenter implements SpeedTrackingContract.Presenter {
 
     @Override
     public void start() {
-        mLocationService.registerOnLocationServiceStateChangedListener(mLocationServiceStateChangedListener);
-        mLocationService.registerOnLocationServiceSpeedChangedListener(mOnLocationServiceSpeedChangedListener);
+        registerListeners();
         showInstantSpeedScreen(mLocationService.isSpeedActive());
     }
 
     @Override
     public void stop() {
-        mLocationService.unregisterOnLocationServiceStateChangedListener(mLocationServiceStateChangedListener);
-        mLocationService.unregisterOnLocationServiceSpeedChangedListener(mOnLocationServiceSpeedChangedListener);
+        unregisterListeners();
     }
 
     @Override
@@ -47,6 +45,16 @@ public class SpeedTrackingPresenter implements SpeedTrackingContract.Presenter {
         mLocationService.startTracking();
     }
 
+    void registerListeners() {
+        mLocationService.registerOnLocationServiceStateChangedListener(mLocationServiceStateChangedListener);
+        mLocationService.registerOnLocationServiceSpeedChangedListener(mOnLocationServiceSpeedChangedListener);
+    }
+
+    void unregisterListeners() {
+        mLocationService.unregisterOnLocationServiceStateChangedListener(mLocationServiceStateChangedListener);
+        mLocationService.unregisterOnLocationServiceSpeedChangedListener(mOnLocationServiceSpeedChangedListener);
+    }
+
     private void showInstantSpeedScreen(boolean show) {
 //        if (mInstantSpeedScreenDisplayed == show) {
 //            return;
@@ -63,7 +71,7 @@ public class SpeedTrackingPresenter implements SpeedTrackingContract.Presenter {
             = new LocationService.OnLocationServiceStateChangedListener() {
         @Override
         public void onLocationServiceStateChangedListener(boolean enabled) {
-            showInstantSpeedScreen(true);
+            showInstantSpeedScreen(enabled);
             mView.updateButtonState(!enabled);
         }
     };

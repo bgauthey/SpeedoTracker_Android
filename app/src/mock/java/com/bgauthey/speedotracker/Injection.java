@@ -9,7 +9,6 @@ import com.bgauthey.speedotracker.service.LocationService;
 /**
  * Enables injection of mock implementations for {@link LocationService}
  */
-
 public class Injection {
 
     public static LocationService provideLocationProvider(@NonNull Context context) {

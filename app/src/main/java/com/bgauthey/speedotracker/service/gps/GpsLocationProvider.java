@@ -1,6 +1,5 @@
 package com.bgauthey.speedotracker.service.gps;
 
-import android.annotation.SuppressLint;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationProvider;
@@ -15,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Provides a {@link LocationService} that uses GPS to get location and speed.
  */
-public final class GpsLocationProvider extends LocationService implements LocationListener {
+public class GpsLocationProvider extends LocationService implements LocationListener {
 
     private static final String TAG = GpsLocationProvider.class.getSimpleName();
 
@@ -39,20 +38,23 @@ public final class GpsLocationProvider extends LocationService implements Locati
     /**
      * Elapsed time between speed activation and speed deactivation (in seconds)
      */
-    private long mTimeElapsed;
+    private int mTimeElapsed;
+    /**
+     * Average speed computed between speed activation and speed deactivation (in m/s)
+     */
+    private float mAverageSpeed;
 
-    @SuppressLint("StaticFieldLeak")
     private static GpsLocationProvider sInstance = null;
 
     GpsLocationProvider(GpsLocationCallback callback) {
         initParameters();
         mLocationCallback = callback;
-//        initComponents(context);
     }
 
     /**
      * Get instance of {@link GpsLocationProvider}.
-//     * @param context the application context
+     *
+     * @param locationCallback a {@link GpsLocationCallback} responsive of doing action on system when requested
      * @return instance
      */
     public static GpsLocationProvider getInstance(GpsLocationCallback locationCallback) {
@@ -62,14 +64,11 @@ public final class GpsLocationProvider extends LocationService implements Locati
         return sInstance;
     }
 
-//    private void initComponents(Context context) {
-//        Log.d(TAG, "initComponents");
-//    }
-
     private void initParameters() {
         mTrackingRunning = false;
         mDistance = 0f;
-        mTimeElapsed = 0L;
+        mTimeElapsed = 0;
+        mAverageSpeed = 0f;
         mStartLocation = new Location(DefaultGpsLocationCallback.LOCATION_PROVIDER);
         mLastLocation = new Location(DefaultGpsLocationCallback.LOCATION_PROVIDER);
     }
@@ -96,14 +95,16 @@ public final class GpsLocationProvider extends LocationService implements Locati
     private void computeSectionParamsToLocation(Location toLocation) {
         mDistance = computeDistance(mStartLocation, toLocation);
         mTimeElapsed = computeTimeElapsed(mStartLocation, toLocation);
+        mAverageSpeed = mDistance / mTimeElapsed;
+        notifyOnAverageSpeedChanged(mAverageSpeed, mDistance, mTimeElapsed);
     }
 
     private float computeDistance(Location from, Location to) {
         return Math.max(0, from.distanceTo(to));
     }
 
-    private long computeTimeElapsed(Location from, Location to) {
-        return Math.max(0, TimeUnit.NANOSECONDS.toSeconds(from.getElapsedRealtimeNanos() - to.getElapsedRealtimeNanos()));
+    private int computeTimeElapsed(Location from, Location to) {
+        return (int) Math.max(0, TimeUnit.NANOSECONDS.toSeconds(to.getElapsedRealtimeNanos() - from.getElapsedRealtimeNanos()));
     }
 
     /**
@@ -137,14 +138,12 @@ public final class GpsLocationProvider extends LocationService implements Locati
             return;
         }
         mLocationCallback.startTracking(this);
-//        mLocationManager.requestLocationUpdates(LOCATION_PROVIDER, MIN_INTERVAL_TIME, MIN_INTERVAL_DISTANCE, this);
         updateTrackingState(true);
     }
 
     @Override
     public void stopTracking() {
         mLocationCallback.stopTracking(this);
-//        mLocationManager.removeUpdates(this);
         updateTrackingState(false);
     }
 
@@ -155,7 +154,7 @@ public final class GpsLocationProvider extends LocationService implements Locati
 
     @Override
     public float getAverageSpeedHistory() {
-        return convertMsToKmH(mDistance / mTimeElapsed);
+        return convertMsToKmH(mAverageSpeed);
     }
     //endregion
 

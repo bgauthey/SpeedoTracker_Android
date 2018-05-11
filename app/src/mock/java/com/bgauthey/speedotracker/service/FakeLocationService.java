@@ -6,9 +6,9 @@ import android.os.Handler;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * @author bgauthey created on 08/05/2018.
+ * A fake {@link LocationService} that generates a new speed every second using a {@link Handler}
+ * when tracking is started.
  */
-
 public class FakeLocationService extends LocationService {
 
     private static final long INTERVAL_TIME = 1000L;

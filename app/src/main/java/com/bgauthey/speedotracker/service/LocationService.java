@@ -47,8 +47,22 @@ public abstract class LocationService {
         void onLocationServiceSpeedActivityChangedListener(boolean active);
     }
 
+    /**
+     * Interface definition for a callback to be invoked when speed changed.
+     */
+    public interface OnLocationServiceAverageSpeedChangedListener {
+        /**
+         * Invoked when the average speed is updated.
+         *
+         * @param averageSpeed    average speed for the section.
+         */
+        void onLocationServiceAverageSpeedChangedListener(float averageSpeed, float distance, int timeElapsed);
+
+    }
+
     private CopyOnWriteArrayList<OnLocationServiceStateChangedListener> mOnLocationServiceStateChangedListeners = new CopyOnWriteArrayList<>();
     private CopyOnWriteArrayList<OnLocationServiceSpeedChangedListener> mOnLocationServiceSpeedChangedListeners = new CopyOnWriteArrayList<>();
+    private CopyOnWriteArrayList<OnLocationServiceAverageSpeedChangedListener> mOnLocationServiceAverageSpeedChangedListeners = new CopyOnWriteArrayList<>();
 
     /**
      * Get the tracking state to know if {@link LocationService} is ready to start recording speed.
@@ -150,6 +164,32 @@ public abstract class LocationService {
     }
 
     /**
+     * Register a {@link OnLocationServiceAverageSpeedChangedListener}.
+     * <p>
+     * Don't forget to unregister listener when client as finished to deal with it to avoid leak.
+     *
+     * @param onLocationServiceAverageSpeedChangedListener the listener to register
+     * @see #unregisterOnLocationServiceAverageSpeedChangedListener(OnLocationServiceAverageSpeedChangedListener)
+     */
+    public final void registerOnLocationServiceAverageSpeedChangedListener(OnLocationServiceAverageSpeedChangedListener onLocationServiceAverageSpeedChangedListener) {
+        if (mOnLocationServiceAverageSpeedChangedListeners.contains(onLocationServiceAverageSpeedChangedListener)) {
+            return;
+        }
+        mOnLocationServiceAverageSpeedChangedListeners.add(onLocationServiceAverageSpeedChangedListener);
+    }
+
+    /**
+     * Unregister a {@link OnLocationServiceAverageSpeedChangedListener}.
+     *
+     * @param locationServiceAverageSpeedChangedListener the listener to unregister
+     */
+    public final void unregisterOnLocationServiceAverageSpeedChangedListener(OnLocationServiceAverageSpeedChangedListener locationServiceAverageSpeedChangedListener) {
+        if (mOnLocationServiceAverageSpeedChangedListeners.contains(locationServiceAverageSpeedChangedListener)) {
+            mOnLocationServiceAverageSpeedChangedListeners.remove(locationServiceAverageSpeedChangedListener);
+        }
+    }
+
+    /**
      * Call it to invoke {@link OnLocationServiceStateChangedListener#onLocationServiceStateChangedListener(boolean)} on all registered listeners.
      */
     protected void notifyOnStateChanged(boolean enabled) {
@@ -173,6 +213,15 @@ public abstract class LocationService {
     protected void notifyOnSpeedActivityChanged(boolean active) {
         for (OnLocationServiceSpeedChangedListener onLocationServiceSpeedChangedListener : mOnLocationServiceSpeedChangedListeners) {
             onLocationServiceSpeedChangedListener.onLocationServiceSpeedActivityChangedListener(active);
+        }
+    }
+
+    /**
+     * Call it to invoke {@link OnLocationServiceAverageSpeedChangedListener#onLocationServiceAverageSpeedChangedListener(float, float, int)} on all registered listeners.
+     */
+    protected void notifyOnAverageSpeedChanged(float averageSpeed, float distance, int timeElapsed) {
+        for (OnLocationServiceAverageSpeedChangedListener onLocationServiceAverageSpeedChangedListener : mOnLocationServiceAverageSpeedChangedListeners) {
+            onLocationServiceAverageSpeedChangedListener.onLocationServiceAverageSpeedChangedListener(averageSpeed, distance, timeElapsed);
         }
     }
 }
