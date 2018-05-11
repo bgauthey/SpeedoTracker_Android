@@ -1,15 +1,14 @@
-package com.bgauthey.speedotracker.service;
+package com.bgauthey.speedotracker.service.gps;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationManager;
 import android.location.LocationProvider;
 import android.os.Bundle;
+import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
-import com.bgauthey.speedotracker.util.PermissionUtils;
+import com.bgauthey.speedotracker.service.LocationService;
 
 import java.util.concurrent.TimeUnit;
 
@@ -23,26 +22,12 @@ public final class GpsLocationProvider extends LocationService implements Locati
     private static final float FACTOR_M_PER_S_TO_KM_PER_H = 3.6f;
 
     /**
-     * Location provider use to track speed: GPS
-     */
-    private static final String LOCATION_PROVIDER = LocationManager.GPS_PROVIDER;
-
-    /**
-     * Minimum time interval to update the location (in milliseconds)
-     */
-    private static final long MIN_INTERVAL_TIME = 500L;
-    /**
-     * Minimum distance interval to update the location (in meters)
-     */
-    private static final long MIN_INTERVAL_DISTANCE = 0L;
-
-    /**
      * Minimum speed to consider user is moving (in m/s)
      */
-    private static final float MIN_SPEED_RUNNING = 1f / FACTOR_M_PER_S_TO_KM_PER_H; // 3 km/h (in m/s)
+    @VisibleForTesting
+    static final float MIN_SPEED_RUNNING = 1f / FACTOR_M_PER_S_TO_KM_PER_H; // 3 km/h (in m/s)
 
-    private LocationManager mLocationManager = null;
-    private Context mContext;
+    private GpsLocationCallback mLocationCallback;
     private Location mStartLocation;
     private Location mLastLocation;
     private boolean mTrackingRunning;
@@ -59,35 +44,34 @@ public final class GpsLocationProvider extends LocationService implements Locati
     @SuppressLint("StaticFieldLeak")
     private static GpsLocationProvider sInstance = null;
 
-    private GpsLocationProvider(Context context) {
-        mContext = context;
+    GpsLocationProvider(GpsLocationCallback callback) {
         initParameters();
-        initComponents(context);
+        mLocationCallback = callback;
+//        initComponents(context);
     }
 
     /**
      * Get instance of {@link GpsLocationProvider}.
-     * @param context the application context
+//     * @param context the application context
      * @return instance
      */
-    public static GpsLocationProvider getInstance(Context context) {
+    public static GpsLocationProvider getInstance(GpsLocationCallback locationCallback) {
         if (sInstance == null) {
-            sInstance = new GpsLocationProvider(context);
+            sInstance = new GpsLocationProvider(locationCallback);
         }
         return sInstance;
     }
 
-    private void initComponents(Context context) {
-        Log.d(TAG, "initComponents");
-        mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
-    }
+//    private void initComponents(Context context) {
+//        Log.d(TAG, "initComponents");
+//    }
 
     private void initParameters() {
         mTrackingRunning = false;
         mDistance = 0f;
         mTimeElapsed = 0L;
-        mStartLocation = new Location(LOCATION_PROVIDER);
-        mLastLocation = new Location(LOCATION_PROVIDER);
+        mStartLocation = new Location(DefaultGpsLocationCallback.LOCATION_PROVIDER);
+        mLastLocation = new Location(DefaultGpsLocationCallback.LOCATION_PROVIDER);
     }
 
     private void updateTrackingState(boolean running) {
@@ -139,7 +123,7 @@ public final class GpsLocationProvider extends LocationService implements Locati
     //region LocationService
     @Override
     public boolean isTrackingReady() {
-        return PermissionUtils.isLocationPermissionGranted(mContext) && mLocationManager.isProviderEnabled(LOCATION_PROVIDER);
+        return mLocationCallback.isTrackingReady();
     }
 
     @Override
@@ -148,18 +132,19 @@ public final class GpsLocationProvider extends LocationService implements Locati
     }
 
     @Override
-    @SuppressLint("MissingPermission")
     public void startTracking() {
         if (!isTrackingReady()) {
             return;
         }
-        mLocationManager.requestLocationUpdates(LOCATION_PROVIDER, MIN_INTERVAL_TIME, MIN_INTERVAL_DISTANCE, this);
+        mLocationCallback.startTracking(this);
+//        mLocationManager.requestLocationUpdates(LOCATION_PROVIDER, MIN_INTERVAL_TIME, MIN_INTERVAL_DISTANCE, this);
         updateTrackingState(true);
     }
 
     @Override
     public void stopTracking() {
-        mLocationManager.removeUpdates(this);
+        mLocationCallback.stopTracking(this);
+//        mLocationManager.removeUpdates(this);
         updateTrackingState(false);
     }
 
@@ -177,7 +162,7 @@ public final class GpsLocationProvider extends LocationService implements Locati
     //region LocationListener
     @Override
     public void onLocationChanged(Location location) {
-        Log.d(TAG, "onLocationChanged: " + location);
+//        Log.d(TAG, "onLocationChanged: " + location);
         mLastLocation.set(location);
         if (location.getSpeed() >= MIN_SPEED_RUNNING && mStartLocation.getSpeed() == 0) {
             // Starting point for tracking
@@ -197,7 +182,7 @@ public final class GpsLocationProvider extends LocationService implements Locati
 
     @Override
     public void onProviderDisabled(String provider) {
-        Log.d(TAG, "onProviderDisabled: " + provider);
+//        Log.d(TAG, "onProviderDisabled: " + provider);
         // When provider is disabled, record stopped
         // Compute section params according to the last known location
         computeSectionParamsToLocation(mLastLocation);
@@ -210,7 +195,7 @@ public final class GpsLocationProvider extends LocationService implements Locati
 
     @Override
     public void onProviderEnabled(String provider) {
-        Log.d(TAG, "onProviderEnabled: " + provider);
+//        Log.d(TAG, "onProviderEnabled: " + provider);
         updateTrackingState(true);
     }
 

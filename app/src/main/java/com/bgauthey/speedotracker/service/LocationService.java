@@ -152,7 +152,7 @@ public abstract class LocationService {
     /**
      * Call it to invoke {@link OnLocationServiceStateChangedListener#onLocationServiceStateChangedListener(boolean)} on all registered listeners.
      */
-    void notifyOnStateChanged(boolean enabled) {
+    protected void notifyOnStateChanged(boolean enabled) {
         for (OnLocationServiceStateChangedListener onLocationServiceStateChangedListener : mOnLocationServiceStateChangedListeners) {
             onLocationServiceStateChangedListener.onLocationServiceStateChangedListener(enabled);
         }
@@ -161,7 +161,7 @@ public abstract class LocationService {
     /**
      * Call it to invoke {@link OnLocationServiceSpeedChangedListener#onLocationServiceSpeedChangedListener(float, Location)} on all registered listeners.
      */
-    void notifyOnSpeedChanged(float speed, Location location) {
+    protected void notifyOnSpeedChanged(float speed, Location location) {
         for (OnLocationServiceSpeedChangedListener onLocationServiceSpeedChangedListener : mOnLocationServiceSpeedChangedListeners) {
             onLocationServiceSpeedChangedListener.onLocationServiceSpeedChangedListener(speed, location);
         }
@@ -170,7 +170,7 @@ public abstract class LocationService {
     /**
      * Call it to invoke {@link OnLocationServiceSpeedChangedListener#onLocationServiceSpeedActivityChangedListener(boolean)} on all registered listeners.
      */
-    void notifyOnSpeedActivityChanged(boolean active) {
+    protected void notifyOnSpeedActivityChanged(boolean active) {
         for (OnLocationServiceSpeedChangedListener onLocationServiceSpeedChangedListener : mOnLocationServiceSpeedChangedListeners) {
             onLocationServiceSpeedChangedListener.onLocationServiceSpeedActivityChangedListener(active);
         }
