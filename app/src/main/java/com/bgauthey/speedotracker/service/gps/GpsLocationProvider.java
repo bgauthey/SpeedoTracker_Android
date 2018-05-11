@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
+import com.bgauthey.speedotracker.Constants;
 import com.bgauthey.speedotracker.service.LocationService;
 
 import java.util.concurrent.TimeUnit;
@@ -24,7 +25,7 @@ public class GpsLocationProvider extends LocationService implements LocationList
      * Minimum speed to consider user is moving (in m/s)
      */
     @VisibleForTesting
-    static final float MIN_SPEED_RUNNING = 1f / FACTOR_M_PER_S_TO_KM_PER_H; // 3 km/h (in m/s)
+    static final float MIN_SPEED_RUNNING = Constants.MINIMUM_SPEED_RUNNING_KM_PER_H / FACTOR_M_PER_S_TO_KM_PER_H; // convert km/h to m/s)
 
     private GpsLocationCallback mLocationCallback;
     private Location mStartLocation;
@@ -96,7 +97,7 @@ public class GpsLocationProvider extends LocationService implements LocationList
         mDistance = computeDistance(mStartLocation, toLocation);
         mTimeElapsed = computeTimeElapsed(mStartLocation, toLocation);
         mAverageSpeed = mDistance / mTimeElapsed;
-        notifyOnAverageSpeedChanged(mAverageSpeed, mDistance, mTimeElapsed);
+        notifyOnAverageSpeedChanged(convertMsToKmH(mAverageSpeed), mDistance, mTimeElapsed);
     }
 
     private float computeDistance(Location from, Location to) {

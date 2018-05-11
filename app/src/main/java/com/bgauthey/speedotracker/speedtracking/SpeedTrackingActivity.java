@@ -2,6 +2,7 @@ package com.bgauthey.speedotracker.speedtracking;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.support.annotation.DrawableRes;
@@ -12,6 +13,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -49,7 +51,12 @@ public class SpeedTrackingActivity extends AppCompatActivity implements SpeedTra
         setSupportActionBar(toolbar);
 
         mAppBarLayout = findViewById(R.id.app_bar);
-        mBottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.fl_bottom_sheet_container));
+        View bottomSheet = findViewById(R.id.fl_bottom_sheet_container);
+        mBottomSheetBehavior = BottomSheetBehavior.from(bottomSheet);
+
+        // Compute bottom sheet height relative to the screen height and the offset
+        bottomSheet.getLayoutParams().height =
+                getScreenHeight() - getResources().getDimensionPixelSize(R.dimen.bottom_sheet_height_offset);
 
         mTrackingButton = findViewById(R.id.fab);
         mTrackingButton.setOnClickListener(new View.OnClickListener() {
@@ -59,8 +66,17 @@ public class SpeedTrackingActivity extends AppCompatActivity implements SpeedTra
             }
         });
 
+        // Attach a global presenter to this activity
         mPresenter = new SpeedTrackingPresenter(this, Injection.provideLocationProvider(getApplicationContext()));
+        // Create speed tracking screens (Instant speed and feedback) through this controller
         SpeedTrackingController.createSpeedTrackingScreens(this);
+    }
+
+    private int getScreenHeight() {
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        return size.y;
     }
 
     @Override
