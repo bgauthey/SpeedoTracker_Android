@@ -2,20 +2,19 @@ package com.bgauthey.speedotracker.service.gps;
 
 import android.location.Location;
 import android.location.LocationListener;
-import android.location.LocationProvider;
 import android.os.Bundle;
 import android.support.annotation.VisibleForTesting;
 import android.util.Log;
 
 import com.bgauthey.speedotracker.Constants;
-import com.bgauthey.speedotracker.service.LocationService;
+import com.bgauthey.speedotracker.service.LocationProvider;
 
 import java.util.concurrent.TimeUnit;
 
 /**
- * Provides a {@link LocationService} that uses GPS to get location and speed.
+ * Provides a {@link LocationProvider} that uses GPS to get location and speed.
  */
-public class GpsLocationProvider extends LocationService implements LocationListener {
+public class GpsLocationProvider extends LocationProvider implements LocationListener {
 
     private static final String TAG = GpsLocationProvider.class.getSimpleName();
 
@@ -122,7 +121,7 @@ public class GpsLocationProvider extends LocationService implements LocationList
     // Interface implementation
     ///////////////////////////////////////////////////////////////////////////
 
-    //region LocationService
+    //region LocationProvider
     @Override
     public boolean isTrackingReady() {
         return mLocationCallback.isTrackingReady();
@@ -203,7 +202,7 @@ public class GpsLocationProvider extends LocationService implements LocationList
     public void onStatusChanged(String provider, int status, Bundle extras) {
         Log.d(TAG, "onStatusChanged: " + provider + ", status = " + status);
         switch (status) {
-            case LocationProvider.AVAILABLE:
+            case android.location.LocationProvider.AVAILABLE:
                 updateTrackingState(true);
                 break;
             default:

@@ -3,40 +3,40 @@ package com.bgauthey.speedotracker.speedtracking.instantspeed;
 import android.location.Location;
 
 import com.bgauthey.speedotracker.Constants;
-import com.bgauthey.speedotracker.service.LocationService;
+import com.bgauthey.speedotracker.service.LocationProvider;
 
 import java.text.DecimalFormat;
 
 /**
- * Listens to {@link LocationService} updates and updates the UI as required.
+ * Listens to {@link LocationProvider} updates and updates the UI as required.
  */
 public class InstantSpeedPresenter implements InstantSpeedContract.Presenter {
 
     private InstantSpeedContract.View mView;
-    private LocationService mLocationService;
+    private LocationProvider mLocationProvider;
 
-    public InstantSpeedPresenter(InstantSpeedContract.View view, LocationService locationService) {
+    public InstantSpeedPresenter(InstantSpeedContract.View view, LocationProvider locationProvider) {
         mView = view;
-        mLocationService = locationService;
+        mLocationProvider = locationProvider;
     }
 
     @Override
     public void start() {
-        mLocationService.registerOnLocationServiceSpeedChangedListener(mSpeedChangedListener);
+        mLocationProvider.registerOnLocationServiceSpeedChangedListener(mSpeedChangedListener);
     }
 
     @Override
     public void stop() {
-        mLocationService.unregisterOnLocationServiceSpeedChangedListener(mSpeedChangedListener);
+        mLocationProvider.unregisterOnLocationServiceSpeedChangedListener(mSpeedChangedListener);
     }
 
     ///////////////////////////////////////////////////////////////////////////
     // Final implementations
     ///////////////////////////////////////////////////////////////////////////
 
-    private final LocationService.OnLocationServiceSpeedChangedListener mSpeedChangedListener = new LocationService.OnLocationServiceSpeedChangedListener() {
+    private final LocationProvider.OnSpeedChangedListener mSpeedChangedListener = new LocationProvider.OnSpeedChangedListener() {
         @Override
-        public void onLocationServiceSpeedChangedListener(float speed, Location location) {
+        public void onSpeedChanged(float speed, Location location) {
             mView.showSpeed(new DecimalFormat("#").format(speed));
             if (Constants.SHOW_DEBUG_INFO) {
                 mView.showLocationDebug(location);
@@ -44,7 +44,7 @@ public class InstantSpeedPresenter implements InstantSpeedContract.Presenter {
         }
 
         @Override
-        public void onLocationServiceSpeedActivityChangedListener(boolean active) {
+        public void onSpeedActivityChanged(boolean active) {
             // Nothing to do
         }
     };

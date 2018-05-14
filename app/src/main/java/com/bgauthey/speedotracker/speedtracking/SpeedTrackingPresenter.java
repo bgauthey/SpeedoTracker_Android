@@ -2,7 +2,7 @@ package com.bgauthey.speedotracker.speedtracking;
 
 import android.location.Location;
 
-import com.bgauthey.speedotracker.service.LocationService;
+import com.bgauthey.speedotracker.service.LocationProvider;
 
 /**
  * Listens to user actions from the UI {@link SpeedTrackingActivity}, retrieves the data and updates
@@ -11,17 +11,17 @@ import com.bgauthey.speedotracker.service.LocationService;
 public class SpeedTrackingPresenter implements SpeedTrackingContract.Presenter {
 
     private SpeedTrackingContract.View mView;
-    private LocationService mLocationService;
+    private LocationProvider mLocationProvider;
 
-    public SpeedTrackingPresenter(SpeedTrackingContract.View view, LocationService locationService) {
+    public SpeedTrackingPresenter(SpeedTrackingContract.View view, LocationProvider locationProvider) {
         mView = view;
-        mLocationService = locationService;
+        mLocationProvider = locationProvider;
     }
 
     @Override
     public void start() {
         registerListeners();
-        showInstantSpeedScreen(mLocationService.isSpeedActive());
+        showInstantSpeedScreen(mLocationProvider.isSpeedActive());
     }
 
     @Override
@@ -31,28 +31,28 @@ public class SpeedTrackingPresenter implements SpeedTrackingContract.Presenter {
 
     @Override
     public void toggleTracking() {
-        if (!mLocationService.isTrackingReady()) {
+        if (!mLocationProvider.isTrackingReady()) {
             mView.showTrackingNotReady();
-        } else if (!mLocationService.isTrackingRunning()) {
-            mLocationService.startTracking();
+        } else if (!mLocationProvider.isTrackingRunning()) {
+            mLocationProvider.startTracking();
         } else {
-            mLocationService.stopTracking();
+            mLocationProvider.stopTracking();
         }
     }
 
     @Override
     public void startTracking() {
-        mLocationService.startTracking();
+        mLocationProvider.startTracking();
     }
 
     void registerListeners() {
-        mLocationService.registerOnLocationServiceStateChangedListener(mLocationServiceStateChangedListener);
-        mLocationService.registerOnLocationServiceSpeedChangedListener(mOnLocationServiceSpeedChangedListener);
+        mLocationProvider.registerOnLocationServiceStateChangedListener(mLocationServiceStateChangedListener);
+        mLocationProvider.registerOnLocationServiceSpeedChangedListener(mOnSpeedChangedListener);
     }
 
     void unregisterListeners() {
-        mLocationService.unregisterOnLocationServiceStateChangedListener(mLocationServiceStateChangedListener);
-        mLocationService.unregisterOnLocationServiceSpeedChangedListener(mOnLocationServiceSpeedChangedListener);
+        mLocationProvider.unregisterOnLocationServiceStateChangedListener(mLocationServiceStateChangedListener);
+        mLocationProvider.unregisterOnLocationServiceSpeedChangedListener(mOnSpeedChangedListener);
     }
 
     private void showInstantSpeedScreen(boolean show) {
@@ -67,25 +67,25 @@ public class SpeedTrackingPresenter implements SpeedTrackingContract.Presenter {
         }
     }
 
-    private final LocationService.OnLocationServiceStateChangedListener mLocationServiceStateChangedListener
-            = new LocationService.OnLocationServiceStateChangedListener() {
+    private final LocationProvider.OnSpeedRecordingStateChangedListener mLocationServiceStateChangedListener
+            = new LocationProvider.OnSpeedRecordingStateChangedListener() {
         @Override
-        public void onLocationServiceStateChangedListener(boolean enabled) {
+        public void onSpeedRecordingStateChanged(boolean enabled) {
             showInstantSpeedScreen(enabled);
             mView.updateButtonState(!enabled);
         }
     };
 
-    private final LocationService.OnLocationServiceSpeedChangedListener mOnLocationServiceSpeedChangedListener
-            = new LocationService.OnLocationServiceSpeedChangedListener() {
+    private final LocationProvider.OnSpeedChangedListener mOnSpeedChangedListener
+            = new LocationProvider.OnSpeedChangedListener() {
 
         @Override
-        public void onLocationServiceSpeedActivityChangedListener(boolean active) {
+        public void onSpeedActivityChanged(boolean active) {
             showInstantSpeedScreen(active);
         }
 
         @Override
-        public void onLocationServiceSpeedChangedListener(float speed, Location location) {
+        public void onSpeedChanged(float speed, Location location) {
             // Nothing to do
         }
     };
