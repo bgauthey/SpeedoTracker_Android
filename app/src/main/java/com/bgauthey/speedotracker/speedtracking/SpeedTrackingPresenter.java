@@ -47,12 +47,12 @@ public class SpeedTrackingPresenter implements SpeedTrackingContract.Presenter {
 
     void registerListeners() {
         mLocationProvider.registerOnLocationServiceStateChangedListener(mLocationServiceStateChangedListener);
-        mLocationProvider.registerOnLocationServiceSpeedChangedListener(mOnLocationServiceSpeedChangedListener);
+        mLocationProvider.registerOnLocationServiceSpeedChangedListener(mOnSpeedChangedListener);
     }
 
     void unregisterListeners() {
         mLocationProvider.unregisterOnLocationServiceStateChangedListener(mLocationServiceStateChangedListener);
-        mLocationProvider.unregisterOnLocationServiceSpeedChangedListener(mOnLocationServiceSpeedChangedListener);
+        mLocationProvider.unregisterOnLocationServiceSpeedChangedListener(mOnSpeedChangedListener);
     }
 
     private void showInstantSpeedScreen(boolean show) {
@@ -67,25 +67,25 @@ public class SpeedTrackingPresenter implements SpeedTrackingContract.Presenter {
         }
     }
 
-    private final LocationProvider.OnLocationServiceStateChangedListener mLocationServiceStateChangedListener
-            = new LocationProvider.OnLocationServiceStateChangedListener() {
+    private final LocationProvider.OnSpeedRecordingStateChangedListener mLocationServiceStateChangedListener
+            = new LocationProvider.OnSpeedRecordingStateChangedListener() {
         @Override
-        public void onLocationServiceStateChangedListener(boolean enabled) {
+        public void onSpeedRecordingStateChanged(boolean enabled) {
             showInstantSpeedScreen(enabled);
             mView.updateButtonState(!enabled);
         }
     };
 
-    private final LocationProvider.OnLocationServiceSpeedChangedListener mOnLocationServiceSpeedChangedListener
-            = new LocationProvider.OnLocationServiceSpeedChangedListener() {
+    private final LocationProvider.OnSpeedChangedListener mOnSpeedChangedListener
+            = new LocationProvider.OnSpeedChangedListener() {
 
         @Override
-        public void onLocationServiceSpeedActivityChangedListener(boolean active) {
+        public void onSpeedActivityChanged(boolean active) {
             showInstantSpeedScreen(active);
         }
 
         @Override
-        public void onLocationServiceSpeedChangedListener(float speed, Location location) {
+        public void onSpeedChanged(float speed, Location location) {
             // Nothing to do
         }
     };

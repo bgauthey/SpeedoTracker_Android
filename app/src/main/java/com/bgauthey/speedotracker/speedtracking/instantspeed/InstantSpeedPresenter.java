@@ -34,9 +34,9 @@ public class InstantSpeedPresenter implements InstantSpeedContract.Presenter {
     // Final implementations
     ///////////////////////////////////////////////////////////////////////////
 
-    private final LocationProvider.OnLocationServiceSpeedChangedListener mSpeedChangedListener = new LocationProvider.OnLocationServiceSpeedChangedListener() {
+    private final LocationProvider.OnSpeedChangedListener mSpeedChangedListener = new LocationProvider.OnSpeedChangedListener() {
         @Override
-        public void onLocationServiceSpeedChangedListener(float speed, Location location) {
+        public void onSpeedChanged(float speed, Location location) {
             mView.showSpeed(new DecimalFormat("#").format(speed));
             if (Constants.SHOW_DEBUG_INFO) {
                 mView.showLocationDebug(location);
@@ -44,7 +44,7 @@ public class InstantSpeedPresenter implements InstantSpeedContract.Presenter {
         }
 
         @Override
-        public void onLocationServiceSpeedActivityChangedListener(boolean active) {
+        public void onSpeedActivityChanged(boolean active) {
             // Nothing to do
         }
     };

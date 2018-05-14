@@ -50,10 +50,10 @@ public class FeedbackPresenter implements FeedbackContract.Presenter {
     // Final implementation
     ///////////////////////////////////////////////////////////////////////////
 
-    private final LocationProvider.OnLocationServiceAverageSpeedChangedListener mAverageSpeedChangedListener =
-            new LocationProvider.OnLocationServiceAverageSpeedChangedListener() {
+    private final LocationProvider.OnAverageSpeedChangedListener mAverageSpeedChangedListener =
+            new LocationProvider.OnAverageSpeedChangedListener() {
                 @Override
-                public void onLocationServiceAverageSpeedChangedListener(float averageSpeed, float distance, int timeElapsed) {
+                public void onAverageSpeedChanged(float averageSpeed, float distance, int timeElapsed) {
                     mView.showAverageSpeed(formatSpeed(averageSpeed));
                     if (Constants.SHOW_DEBUG_INFO) {
                         mView.showDebugInfo(averageSpeed, distance, timeElapsed);
