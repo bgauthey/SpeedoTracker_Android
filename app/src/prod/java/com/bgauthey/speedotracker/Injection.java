@@ -3,17 +3,17 @@ package com.bgauthey.speedotracker;
 import android.content.Context;
 import android.support.annotation.NonNull;
 
-import com.bgauthey.speedotracker.service.LocationService;
+import com.bgauthey.speedotracker.service.LocationProvider;
 import com.bgauthey.speedotracker.service.gps.DefaultGpsLocationCallback;
 import com.bgauthey.speedotracker.service.gps.GpsLocationCallback;
 import com.bgauthey.speedotracker.service.gps.GpsLocationProvider;
 
 /**
- * Enables injection of production implementations for {@link LocationService}
+ * Enables injection of production implementations for {@link LocationProvider}
  */
 public class Injection {
 
-    public static LocationService provideLocationProvider(@NonNull Context context) {
+    public static LocationProvider provideLocationProvider(@NonNull Context context) {
         return GpsLocationProvider.getInstance(provideLocationCallback(context));
     }
 

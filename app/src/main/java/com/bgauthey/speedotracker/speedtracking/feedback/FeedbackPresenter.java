@@ -1,7 +1,7 @@
 package com.bgauthey.speedotracker.speedtracking.feedback;
 
 import com.bgauthey.speedotracker.Constants;
-import com.bgauthey.speedotracker.service.LocationService;
+import com.bgauthey.speedotracker.service.LocationProvider;
 
 import java.text.DecimalFormat;
 
@@ -11,19 +11,19 @@ import java.text.DecimalFormat;
 public class FeedbackPresenter implements FeedbackContract.Presenter {
 
     private FeedbackContract.View mView;
-    private LocationService mLocationService;
+    private LocationProvider mLocationProvider;
 
-    public FeedbackPresenter(FeedbackContract.View view, LocationService locationService) {
+    public FeedbackPresenter(FeedbackContract.View view, LocationProvider locationProvider) {
         mView = view;
-        mLocationService = locationService;
+        mLocationProvider = locationProvider;
     }
 
     void registerListener() {
-        mLocationService.registerOnLocationServiceAverageSpeedChangedListener(mAverageSpeedChangedListener);
+        mLocationProvider.registerOnLocationServiceAverageSpeedChangedListener(mAverageSpeedChangedListener);
     }
 
     void unregisterListener() {
-        mLocationService.unregisterOnLocationServiceAverageSpeedChangedListener(mAverageSpeedChangedListener);
+        mLocationProvider.unregisterOnLocationServiceAverageSpeedChangedListener(mAverageSpeedChangedListener);
     }
 
     static String formatSpeed(float speed) {
@@ -37,7 +37,7 @@ public class FeedbackPresenter implements FeedbackContract.Presenter {
     @Override
     public void start() {
         registerListener();
-        float averageSpeed = mLocationService.getAverageSpeedHistory();
+        float averageSpeed = mLocationProvider.getAverageSpeedHistory();
         mView.showAverageSpeed(formatSpeed(averageSpeed));
     }
 
@@ -50,8 +50,8 @@ public class FeedbackPresenter implements FeedbackContract.Presenter {
     // Final implementation
     ///////////////////////////////////////////////////////////////////////////
 
-    private final LocationService.OnLocationServiceAverageSpeedChangedListener mAverageSpeedChangedListener =
-            new LocationService.OnLocationServiceAverageSpeedChangedListener() {
+    private final LocationProvider.OnLocationServiceAverageSpeedChangedListener mAverageSpeedChangedListener =
+            new LocationProvider.OnLocationServiceAverageSpeedChangedListener() {
                 @Override
                 public void onLocationServiceAverageSpeedChangedListener(float averageSpeed, float distance, int timeElapsed) {
                     mView.showAverageSpeed(formatSpeed(averageSpeed));

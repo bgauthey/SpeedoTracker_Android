@@ -1,9 +1,9 @@
 package com.bgauthey.speedotracker.service;
 
 /**
- * A {@link LocationService} for unit tests. Easy way to trigger events.
+ * A {@link LocationProvider} for unit tests. Easy way to trigger events.
  */
-public class LocationProviderForTest extends LocationService {
+public class LocationProviderForTest extends LocationProvider {
 
     private boolean mTrackingReady = false;
     private boolean mTrackingRunning = false;

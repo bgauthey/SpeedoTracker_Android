@@ -7,13 +7,13 @@ import java.util.concurrent.CopyOnWriteArrayList;
 /**
  * A base to create a provider handling location and speed.
  * <p>
- * It provides methods to notify about {@link LocationService} states.
+ * It provides methods to notify about {@link LocationProvider} states.
  * <p>
  * {@link OnLocationServiceStateChangedListener} gives feedback about speed recording state.
  * <p>
  * {@link OnLocationServiceSpeedChangedListener} gives feedback about speed changed.
  */
-public abstract class LocationService {
+public abstract class LocationProvider {
 
     /**
      * Interface definition for a callback to be invoked when speed recording state changed.
@@ -65,26 +65,26 @@ public abstract class LocationService {
     private CopyOnWriteArrayList<OnLocationServiceAverageSpeedChangedListener> mOnLocationServiceAverageSpeedChangedListeners = new CopyOnWriteArrayList<>();
 
     /**
-     * Get the tracking state to know if {@link LocationService} is ready to start recording speed.
+     * Get the tracking state to know if {@link LocationProvider} is ready to start recording speed.
      *
      * @return true if ready, false otherwise
      */
     public abstract boolean isTrackingReady();
 
     /**
-     * Get the tracking running state to know if {@link LocationService} is recording speed.
+     * Get the tracking running state to know if {@link LocationProvider} is recording speed.
      *
      * @return true if tracking started, false otherwise
      */
     public abstract boolean isTrackingRunning();
 
     /**
-     * Request {@link LocationService} to start recording speed.
+     * Request {@link LocationProvider} to start recording speed.
      */
     public abstract void startTracking();
 
     /**
-     * Request {@link LocationService} to stop recording speed.
+     * Request {@link LocationProvider} to stop recording speed.
      */
     public abstract void stopTracking();
 
